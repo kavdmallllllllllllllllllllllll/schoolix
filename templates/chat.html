@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        /* Basic styling for the chat interface */
+        #chat-box {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #ccc;
+            overflow-y: scroll;
+            padding: 10px;
+        }
+        #message-form {
+            display: flex;
+            margin-top: 10px;
+        }
+        #message-form input {
+            flex: 1;
+            padding: 10px;
+            margin-right: 10px;
+        }
+        #message-form button {
+            padding: 10px;
+        }
+        #users-select, #rooms-select {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chat Application</h1>
+
+    <!-- Select user to chat with -->
+    <div>
+        <label for="users-select">Select User:</label>
+        <select id="users-select">
+            <!-- Options will be populated by JavaScript -->
+        </select>
+    </div>
+
+    <!-- Select chat room -->
+    <div>
+        <label for="rooms-select">Select Room:</label>
+        <select id="rooms-select">
+            <!-- Options will be populated by JavaScript -->
+        </select>
+    </div>
+
+    <!-- Display chat messages -->
+    <div id="chat-box"></div>
+
+    <!-- Form to send a message -->
+    <form id="message-form">
+        <input type="text" id="message" placeholder="Type your message here" required>
+        <button type="submit">Send</button>
+    </form>
+
+    <script>
+        $(document).ready(function() {
+            let selectedRoomId = null;
+            let selectedUserId = null;
+
+            // Function to load users
+            function loadUsers() {
+                $.get('/users/', function(data) {
+                    $('#users-select').empty();
+                    data.users.forEach(user => {
+                        $('#users-select').append(`<option value="${user.id}">${user.username}</option>`);
+                    });
+                });
+            }
+
+            // Function to load chat rooms
+            function loadRooms() {
+                $.get('/chat/rooms/', function(data) {
+                    $('#rooms-select').empty();
+                    data.rooms.forEach(room => {
+                        $('#rooms-select').append(`<option value="${room.id}">${room.name}</option>`);
+                    });
+                });
+            }
+
+            // Function to load chat messages
+            function loadChatMessages() {
+                if (selectedRoomId) {
+                    $.get(`/chat/room/${selectedRoomId}/`, function(data) {
+                        $('#chat-box').empty();
+                        data.messages.forEach(message => {
+                            $('#chat-box').append(`<p><strong>${message.sender}:</strong> ${message.message}</p>`);
+                        });
+                    });
+                }
+            }
+
+            // Function to send a message
+            $('#message-form').submit(function(e) {
+                e.preventDefault();
+                const message = $('#message').val();
+                if (selectedRoomId) {
+                    $.post('/send-message/', {
+                        message: message,
+                        room: selectedRoomId,
+                        receiver: selectedUserId
+                    }, function() {
+                        $('#message').val('');
+                        loadChatMessages();
+                    });
+                }
+            });
+
+            // Load users and rooms initially
+            loadUsers();
+            loadRooms();
+
+            // Update selected user ID on change
+            $('#users-select').change(function() {
+                selectedUserId = $(this).val();
+            });
+
+            // Update selected room ID on change
+            $('#rooms-select').change(function() {
+                selectedRoomId = $(this).val();
+                loadChatMessages();
+            });
+
+            // Poll for new messages every 5 seconds
+            setInterval(loadChatMessages, 5000);
+        });
+    </script>
+</body>
+</html>

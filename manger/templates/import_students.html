@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>استيراد بيانات الطلاب من ملف Excel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            direction: rtl;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        input[type="file"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .message {
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>استيراد بيانات الطلاب من ملف Excel</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="file" accept=".xlsx, .xls" required>
+        <button type="submit">رفع الملف واستيراد البيانات</button>
+    </form>
+    <div class="message">
+        {% if message %}
+            <span style="{% if status == 'success' %}color: green;{% else %}color: red;{% endif %}">{{ message }}</span>
+        {% endif %}
+    </div>
+
+    {% if added_students %}
+        <h2>الطلاب المضافين</h2>
+        <ul>
+            {% for student in added_students %}
+                <li>الاسم: {{ student.name }} - اسم المستخدم: {{ student.username }} </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if skipped_students %}
+        <h2 style="color: rgb(158, 9, 11);" > متواجدين بالفعل</h2>
+        <ul>
+            {% for student in skipped_students %}
+                <li>الاسم: {{ student.name }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>
+
+</body>
+</html>

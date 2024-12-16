@@ -1,0 +1,267 @@
+
+
+
+{% extends 'bassic/bassic.html' %}
+{% load static %}
+
+
+
+{% block body %}
+
+
+    <!-- Content Wrapper. Contains page content -->
+    <div   class="content-wrapper">
+      <!-- Content Header (Page header) -->
+
+
+      <!--الاحصائيات-->
+      <div class="content">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="card">
+                <div class="card-header border-0">
+                  <div class="d-flex justify-content-between">
+                    <h3 class="card-title">اجمالي عدد  الغياب اليوم</h3>
+
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="d-flex">
+                    <p class="d-flex flex-column">
+                      <span class="text-bold text-lg">{{attendance_today}}</span>
+                    </p>
+
+                  </div>
+                  <!-- /.d-flex -->
+                  <br>
+                  <div class="position-relative mb-4">
+                    <canvas id="visitors-chart" height="200"></canvas>
+                  </div>
+                </div>
+              </div>
+              <!-- /.card -->
+            </div>
+            <!-- /.col-md-6 -->
+
+            <div class="col-lg-6">
+              <div class="card">
+                <div class="card-header border-0">
+                  <div class="d-flex justify-content-between">
+                    <h3 class="card-title">الارباح</h3>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="d-flex">
+                    <p class="d-flex flex-column">
+                      <span id="totalsalarys" class="text-bold text-lg">$250</span><br></p>
+                  </div>
+                  <!-- /.d-flex -->
+
+                  <div class="position-relative mb-4">
+                    <canvas id="sales-chart" height="160"></canvas>
+                  </div>
+
+                  <div class="d-flex flex-row justify-content-end">
+                    <span class="mr-2">
+                      <i class="fas fa-square text-primary"></i> الارباح الحالية
+                      <p id="soldtotals"></p>
+                    </span>
+                    <span>
+                      <i class="fas fa-square text-gray"></i>  المدفعات الحالية
+                      <p id="rentedtotals"></p>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- /.col-md-6 -->
+          </div>
+          <!-- /.row -->
+
+          <!-- form add books -->
+          <div class="row m-1 mb-3">
+            <a href="#bookform" class="btn btn-dark" data-toggle="collapse"> اضافة مستخدم  </a>
+          </div>
+
+          <div style="text-align: center;" id="bookform" class="card card-dark collapse">
+            <div class="card-header">
+              <h3 style="text-align: center;" class="">اضيف بيانات  </h3>
+            </div>
+            <!-- /.card-header -->
+            <!-- form start -->
+            <form style="text-align: center;" method="POST" action="" enctype="multipart/form-data"  >
+              {% csrf_token %}
+              {{SignUpForm.as_p}}
+              <!-- /.card-body -->
+              <div class="card-footer">
+                <button type="submit" class="btn btn-dark">اضافة</button>
+              </div>
+            </form>
+          </div>
+
+                <!-- /.card -->
+          </div>
+          <div class="content">
+            <br><br>
+            {% for data in name_data %}
+            {{data.student.name}}
+          {% endfor  %}
+
+            <div style="text-align: center;width: 90%;margin-right: 5%;" class="card">
+              <br>
+              <h5>اختر حسب</h5>
+              <form method="get">
+                {{ filter.form.as_p }}
+
+                <button type="submit" class="btn btn-dark w-100">بحث</button>
+
+            </form>
+            </div>
+            <br>
+            <br>
+              <!-- books -->
+
+              <div class="row">
+
+
+              <!-- الكتب -->
+                  {% for data in profiles  %}
+                  <div id="" class="col-md-4">
+                      <!-- Widget: user widget style 1 -->
+                    <div id="" class="card card-widget widget-user ">
+                      <!-- Add the bg color to the header using any of the bg-* classes -->
+                    <!-- قائمة منسدلة -->
+                    <div style="position: absolute;" class="btn-group">
+                      <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="sr-only">Toggle Dropdown</span>
+                      </button>
+                      <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">تعديل</a>
+                        <a class="dropdown-item" href="#">حذف</a>
+                    <!-- Button trigger modal -->
+                      </div>
+                    </div>
+                    <div  class="widget-user-header "
+                    style="
+                    {% if data.Account_details == 'مبتداء' %} background-color: #17a2b8!important;
+                    {% elif data.Account_details == 'اساسي' %} background-color:green;
+                    {% elif data.Account_details == 'مستبعد' %} background-color: rgb(212, 8, 8);
+                    {% endif %}
+                    ">
+                        {% if data.temleder %}
+                            <h3 class="widget-user-username"> تيم ليدر</h3>
+                        {% else %}
+                        {% endif %}
+                      <h5 class="widget-user-desc">{{data.name}}                                      </h5>
+                    </div>
+                    <div class="widget-user-image">
+                      {% if data.image %}
+                      <img style="width:100px; height: 100px;" class="img-circle elevation-2" src="{{data.image.url}}" alt="User Avatar">
+
+                      {% else %}
+                      <img style="width:100px; height: 100px;" class="img-circle elevation-2" src="{% static 'img/user.png'%}" alt="User Avatar">
+
+                      {% endif %}
+                    </div>
+                    <div class="card-footer">
+                      <div class="row">
+                        <div class="col-sm-4 border-right">
+                          <div class="description-block">
+                            <h5  class="description-header">التقيم</h5>
+
+
+
+                            {% if data.star == '1' %}
+                              <span style="color: #fcb900;" class="fa fa-star checked"></span>
+                              {% elif data.star == '2' %}
+                                <span style="color: #fcb900;" class="fa fa-star checked"></span>
+                                <span style="color: #fcb900;" class="fa fa-star checked"></span>
+                              {% elif data.star == '3' %}
+                                <span style="color: #fcb900;" class="fa fa-star checked"></span>
+                                <span style="color: #fcb900;" class="fa fa-star checked"></span>
+                                <span style="color: #fcb900;" class="fa fa-star checked"></span>
+                              {% elif data.star == '4' %}
+                                <span style="color: #fcb900;" class="fa fa-star checked"></span>
+                                <span style="color: #fcb900;" class="fa fa-star checked"></span>
+                                <span style="color: #fcb900;" class="fa fa-star checked"></span>
+                                <span style="color: #fcb900;" class="fa fa-star checked"></span>
+                              {% elif data.star == '5' %}
+                                <span style="color: #fcb900;" class="fa fa-star checked"></span>
+                                <span style="color: #fcb900;" class="fa fa-star checked"></span>
+                                <span style="color: #fcb900;" class="fa fa-star checked"></span>
+                                <span style="color: #fcb900;" class="fa fa-star checked"></span>
+                                <span style="color: #fcb900;" class="fa fa-star checked"></span>
+
+                            {% endif %}
+
+
+
+
+
+                          </div>
+                          <!-- /.description-block -->
+                        </div>
+                            <!-- /.col -->
+                        <div class="col-sm-4 border-right">
+                          <div class="description-block">
+                            <h5 class="description-header">التخصص</h5>
+                            <span  class="description-text">{{data.category|truncatechars:14}}</span>
+                          </div>
+                          <!-- /.description-block -->
+                        </div>
+                            <!-- /.col -->
+                        <div class="col-sm-4">
+                          <div class="description-block">
+                            <h5 class="description-header text-dark">الحالة</h5>
+                        <span class="description-text">{{data.Account_details}}</span>
+                          </div>
+                          <!-- /.description-block -->
+                        </div>
+
+                            <!-- /.col -->
+                      </div>
+                      <div class="d-grid gap-2">
+                        <a href="" >
+                          <button style="width: 100%;" class="btn btn-dark" type="button"> شاهد الحساب الشخصي  </button>
+
+
+                        </a>
+                      </div>
+
+
+                      <div class="d-grid gap-2">
+                        <br>
+
+                        <a href="https://api.whatsapp.com/send/?phone={{ data.phon }}&text&type=phone_number&app_absent=0" >
+                          <button style="width: 100%;" class="btn btn-" type="button">   <img src="{% static 'img/whatsapp.png'%}" width="50" height="50" alt="whatsapp" class="img-fluid"  </button>
+
+
+                        </a>
+                      </div>
+                    </div>
+
+                    </div>
+
+                  </div>
+                  {% endfor %}
+
+                  <div class="row">
+                    <div class="col text-center">
+                    </div>
+                  </div>
+              </div>
+          </div>
+
+
+
+      </div>
+    </div>
+  </div>
+</div>
+    <!-- /.content-wrapper -->
+{% endblock body %}
+
+
+
